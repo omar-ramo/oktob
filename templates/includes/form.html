@@ -1,0 +1,26 @@
+{% load widget_tweaks %}
+<div class="text-danger">
+	{{ form.non_fields_errors }}
+</div>
+<form method='post' enctype="multipart/form-data" novalidate>
+	<fieldset>
+		{% csrf_token %}
+		{% for field in form.visible_fields %}
+			<div class='form-group'>
+				{% if field.errors %}
+				<ul>
+					{% for error in field.errors %}
+						<li class="alert alert-danger">{{ error }}</li>
+					{% endfor %}
+				</ul>
+				{% endif %}
+				{{ field.label_tag }}
+				{% render_field field class='form-control' %}
+				<small>{{ field.help_text }}</small>
+			</div>
+		{% endfor %}
+		<input type="hidden" name="next" value="{{ next }}">
+		<button type="submit" class="btn btn-dark btn-block">{{ button_text }}</button>
+	</fieldset>
+</form>
+<br>

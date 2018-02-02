@@ -1,0 +1,18 @@
+{% extends 'blog/base_blog.html' %}
+
+{% block title %}My Posts - {{ block.super }}{% endblock %}
+
+{% block head %}{{ block.super }}{% endblock %}
+
+{% block content %}
+	<!-- Posts list -->
+	<h2>My Posts:</h2>
+		{% include 'blog/includes/post_list_snippet.html' %}
+
+	<!-- Pagination -->
+	{% include 'blog/includes/pagination_snippet.html' %}
+{% endblock %}
+
+{% block sidebar %}
+	{% include 'blog/includes/sidebar_snippet.html' %}
+{% endblock %}

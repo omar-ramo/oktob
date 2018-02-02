@@ -1,0 +1,99 @@
+{% extends 'blog/base_blog.html' %}
+
+{% block title %}{{ post.title }} - {{ block.super }}{% endblock %}
+
+{% block head %}{{ block.super }}{% endblock %}
+
+{% block content %}
+	<!-- Posts Detail -->
+	<h2>
+		{{ post.title }}
+		{% if request.user.is_authenticated %}
+			{% ifequal post.owner request.user %}
+				<small><i><a href="{{ post.get_edit_url }}"><i class="fa fa-pencil fa-2g"></i> </a></i></small>
+			{% endifequal %}
+		{% endif %}
+	</h2>
+	<div class="card">
+		<div class="card-head text-center">
+			<!-- show an orange badge if the post is Draft -->
+			{% ifequal post.status 'd' %}
+				<span class="badge badge-warning"><b>Draft</b></span>
+			{% endifequal %}
+			<!-- Post meta informations -->
+			<span class="badge badge-dark"><i class="fa fa-pencil fa-lg"></i> <a href="{% url 'blog:post_user_list' post.owner.username %}">{{ post.owner.get_short_name }}</a></span>
+			<span class="badge badge-dark"><i class="fa fa-calendar fa-lg"></i> {{ post.timestamp|date:'SHORT_DATE_FORMAT' }}</span>
+			<span class="badge badge-dark"><i class="fa fa-eye fa-lg"></i> {{ post.views_count }}</span>
+		</div>
+		<!-- Post body -->
+		<div class="card-body">
+			{% if post.image %}
+			<img src="{{ post.image.url }}" class="card-img-top fluid img-rounded">
+			{% endif %}
+			<div class="card-text">{{ post.body }}</div>
+		</div>
+		<!-- Post Footer: number of comments and tags -->
+		<div class="card-footer">
+			<span class="badge badge-light"><i class="fa fa-comment fa-lg"></i> {{ post.get_comments_count }}</span>
+			{% if post.tags.all %}
+				<span class="badge badge-light">
+					<i class="fa fa-tags"></i> 
+					{% for tag in post.tags.all %}
+						<a href="{{ tag.get_absolute_url }}">{{ tag }}</a>, 
+					{% endfor %}
+				</span>
+			{% endif %}
+		</div>
+	</div>
+	<!-- Coments list -->
+	<div class="card">
+		<h3>Comments:</h3>
+		{% for comment in post.comments.all %}
+			<div class="card">
+				<div class="card-head text-center">
+					<!-- Commen meta informations -->
+					<span class="badge">
+						<i class="fa fa-pencil fa-lg"></i> 
+						<a href="{% url 'blog:post_user_list' comment.owner.username %}">
+							{{ comment.owner.get_short_name }}
+						</a>
+					</span>
+					<span class="badge"><i class="fa fa-clock-o fa-lg"></i> {{ comment.timestamp|timesince }} ago</span>
+				</div>
+				<div class="card-body">
+					{{ comment.body }}
+				</div>
+			</div> 
+		{% empty %}
+			<div class="card">
+				<div class="card-body">
+					There is no comment on this post. be the first.
+				</div>
+			</div> 
+		{% endfor %}
+	</div>
+	<!-- Comment add form -->
+	<div class="card">
+		<div class="cart-body">
+			{% if request.user.is_authenticated %}
+				<h4>Add a comment:</h4>
+				{% include 'includes/form.html' with button_text='Comment' form=comment_form %}
+			{% else %} 
+				<p>Please, login to comment.</p>
+			{% endif %}
+		</div>
+	</div>
+	
+{% endblock %}
+
+{% block sidebar %}
+	<!-- Hotest tags list -->
+	<h2>Hotest Tags:</h2>
+	<ul class="list-group">
+	{% for tag in hotest_tags %}
+		<li class="list-group-item text-center"><a href="{{ tag.get_absolute_url }}">{{ tag.title }}</a></li>
+	{% empty %}
+	{% endfor %}
+	</ul>
+
+{% endblock %}

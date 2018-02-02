@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{% block title %}Oktob{% endblock %}</title>
+	<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" >
+	<link rel="stylesheet" href="{% static 'font-awesome/css/font-awesome.min.css' %}">
+	<link rel="stylesheet" href="{% static 'css/style.css' %}" >
+	{% block head %}{% endblock %}
+</head>
+<body>
+	<div class='container'>
+		<nav class='navbar navbar-expand'>
+			<ul class='navbar-nav nav-pills'>
+				<li class='nav-item'>
+					<a href="{% url 'blog:post_list' %}" class='navbar-brand'><i class="fa fa-home fa-lg"></i> OKTOB</a>
+				</li>
+				{% if request.user.is_authenticated %}
+					<li class='nav-item'>
+						<a href="{% url 'accounts:logout' %}" class='nav-link'><i class="fa fa-door"></i> Logout</a>
+					</li>
+					<li>
+						<a href="{% url 'accounts:profile' %}" class='nav-link'><i class="fa fa-user"></i> My Profile ({{ request.user.get_short_name }})</a>
+					</li>
+					<li class='nav-item'>
+						<a href="{% url 'blog:post_create' %}" class='nav-link'><i class="fa fa-pencil"></i> Write a post</a>
+					</li>
+				{% else %}
+					<li class='nav-item'>
+						<a href="{% url 'accounts:login' %}?next={{ request.path }}" class='nav-link'><i class="fa fa-login"></i> Login</a>
+					</li>
+					<li class='nav-item'>
+						<a href="{% url 'accounts:register' %}" class='nav-link'><i class="fa fa-register"></i> Register</a>
+					</li>
+				{% endif %}
+			</ul>
+		</nav>
+		<hr class="dashed">
+		<hr class="dashed">
+		<div class="row">
+			{% if messages %}
+				<ul class="messages">
+				{% for message in messages %}
+					<li {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</li>
+				{% endfor %}
+				</ul>
+			{% endif %}	
+		</div>
+	</div>
+	<!-- Display messages if any -->
+
+	<div class='container'>
+		{% block body %}
+		{% endblock %}
+	</div>
+	
+</body>
+</html>

@@ -1,0 +1,24 @@
+{% extends 'blog/base_blog.html' %}
+
+{% block title %}Editing a post - {{ block.super }}{% endblock %}
+
+{% block head %}{{ block.super }}{% endblock %}
+
+{% block content %}
+	<!-- Form -->
+	<h2>Updating: {{ form.title.value }}</h2>
+	{% include 'includes/form.html' with button_text='Update' %}
+	
+{% endblock %}
+
+{% block sidebar %}
+	<!-- Hotest tags list -->
+	<!-- <h2>Hotest Tags:</h2>
+	<ul class="list-group">
+	{% for tag in hotest_tags %}
+		<li class="list-group-item text-center"><a href="{{ tag.get_absolute_url }}">{{ tag.title }}</a></li>
+	{% empty %}
+	{% endfor %}
+	</ul> -->
+
+{% endblock %}
