@@ -17,11 +17,17 @@ from django.conf.urls import url, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.sitemaps.views import sitemap
+
+from blog.sitemaps import PostSitemap, TagSitemap
+
+sitemaps = {'tags': TagSitemap, 'posts': PostSitemap}
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^user/', include('accounts.urls', namespace='accounts')),
     url(r'^blog/', include('blog.urls', namespace='blog')),
+    url(r'^sitemap\.xml$', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
 ]
 
 if(settings.DEBUG):
