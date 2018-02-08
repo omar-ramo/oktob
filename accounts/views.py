@@ -8,7 +8,7 @@ from .forms import UserCreationForm
 
 from blog.models import Post, Tag, Comment
 
-class UserRegistrationView(CreateView):
+class SignupView(CreateView):
 	form_class = UserCreationForm
 	template_name = 'accounts/register.html'
 
