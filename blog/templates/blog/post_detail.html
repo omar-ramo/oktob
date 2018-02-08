@@ -79,7 +79,7 @@
 				<h4>Add a comment:</h4>
 				{% include 'includes/form.html' with button_text='Comment' form=comment_form %}
 			{% else %} 
-				<p>Please, <a href="{% url 'accounts:login' %}">login</a> or <a href="{% url 'accounts:register' %}">register</a> to comment.</p>
+				<p>Please, <a href="{% url 'accounts:login' %}?next={{request.path}}">login</a> or <a href="{% url 'accounts:register' %}?next={{request.path}}">register</a> to comment.</p>
 			{% endif %}
 		</div>
 	</div>
