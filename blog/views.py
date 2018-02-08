@@ -1,35 +1,23 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count, Q
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .forms import PostForm, CommentForm
 from .models import Post, Tag, Comment
+from .utils import paginate_qs
 
 def post_list(request, page=1):
 	qs = Post.published.all()
-	paginator = Paginator(qs, 6)
-	try:
-		posts = paginator.page(page)
-	except PageNotAnInteger:
-		posts = paginator.page(1)
-	except EmptyPage:
-		posts = paginator.page(paginator.num_pages)
+	posts = paginate_qs(qs=qs, by=6, page=page)
 
 	hotest_tags = Tag.objects.all().annotate(posts_count=Count('posts')).order_by('-posts_count')[:5]
 	return render(request, 'blog/post_list.html', {'posts': posts, 'hotest_tags': hotest_tags,})
 
 def post_user_list(request, username, page=1):
 	qs = Post.published.filter(owner__username__exact=username)
-	paginator = Paginator(qs, 6)
-	try:
-		posts = paginator.page(page)
-	except PageNotAnInteger:
-		posts = paginator.page(1)
-	except EmptyPage:
-		posts = paginator.page(paginator.num_pages)
+	posts = paginate_qs(qs=qs, by=6, page=page)
 
 	hotest_tags = Tag.objects.all().annotate(posts_count=Count('posts')).order_by('-posts_count')[:5]
 	return render(request, 'blog/post_user_list.html', {'posts': posts, 'username': username, 'hotest_tags': hotest_tags,})
@@ -37,13 +25,7 @@ def post_user_list(request, username, page=1):
 def post_tag_list(request, tag_slug, page=1):
 	tag = get_object_or_404(Tag, slug__exact=tag_slug)
 	qs = tag.posts.filter(status='p')
-	paginator = Paginator(qs, 6)
-	try:
-		posts = paginator.page(page)
-	except PageNotAnInteger:
-		posts = paginator.page(1)
-	except EmptyPage:
-		posts = paginator.page(paginator.num_pages)
+	posts = paginate_qs(qs=qs, by=6, page=page)
 
 	hotest_tags = Tag.objects.all().annotate(posts_count=Count('posts')).order_by('-posts_count')[:5]
 	return render(request, 'blog/post_tag_list.html', {'tag': tag, 'posts': posts, 'hotest_tags': hotest_tags,})
@@ -72,12 +54,16 @@ def post_edit(request, post_slug):
 		return render(request, 'blog/post_edit.html', {'form': form})
 	elif request.method == 'POST':
 		form = PostForm(request.POST or None, request.FILES or None, instance=post)
-		if form.is_valid():
-			form.save()
-			messages.add_message(request, messages.SUCCESS, 'The post was updated successfly.')
-			return redirect(post)
-		messages.add_message(request, messages.WARNING, 'Please correct the errors in the form.')
-		return render(request, 'blog/post_edit.html', {'form': form})
+		if post.owner == request.user:
+			if form.is_valid():
+				form.save()
+				messages.add_message(request, messages.SUCCESS, 'The post was updated successfly.')
+				return redirect(post)
+			messages.add_message(request, messages.WARNING, 'Please correct the errors in the form.')
+			return render(request, 'blog/post_edit.html', {'form': form})
+		else:
+			raise HttpResponseForbidden()
+
 
 def post_detail(request, post_slug):
 	if request.method == 'GET':
