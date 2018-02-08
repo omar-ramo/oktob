@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
@@ -98,4 +99,4 @@ def post_detail(request, post_slug):
 				return render(request, 'blog/post_detail.html', {'post': post, 'hotest_tags': hotest_tags, 'comment_form': comment_form})
 		else:
 			messages.add_message(request, messages.WARNING, 'You must be logged in to comment.')
-			return redirect(post)
+			return redirect('{}?next={}'.format(settings.LOGIN_URL, post.get_absolute_url()))

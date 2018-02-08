@@ -3,7 +3,7 @@ from django.test import TestCase, Client
 from django.urls import reverse, resolve
 
 from .. import views
-from ..forms import PostForm
+from ..forms import PostForm,CommentForm
 from ..models import Post, Comment, Tag
 
 from accounts.models import User
@@ -62,7 +62,6 @@ class PostListViewTestes(MySetup):
 	def test_post_list_contains_register_link(self):
 		register_link = reverse('accounts:register')
 		self.assertContains(self.response, register_link)
-
 
 class PostUserListViewTestes(MySetup):
 	def setUp(self):
@@ -278,6 +277,13 @@ class PostDetailTests(TestCase):
 		response = self.client.get(self.second_post_url)
 		self.assertEquals(response.status_code, 404)
 
+	def test_logged_in_user_cant_see_comment_form(self):
+		#Login
+		self.client.post(self.login_url, data={'username': 'user2@user2.org', 'password': 'password123'})
+		response = self.client.get(self.first_post_url)
+		self.assertContains(response, '<form ')
+		self.assertIsInstance(response.context['comment_form'], CommentForm)
+
 	def test_non_logged_in_user_cant_see_comment_form(self):
 		response = self.client.get(self.first_post_url)
 		self.assertNotContains(response, '<form ')
@@ -291,5 +297,17 @@ class PostDetailTests(TestCase):
 		self.client.post(self.login_url, data={'username': 'user2@user2.org', 'password': 'password123'})
 		response = self.client.get(self.first_post_url)
 		self.assertNotContains(response, self.first_post_edit_url)
+
+	def test_logged_in_user_can_comment(self):
+		#Login
+		self.client.post(self.login_url, data={'username': 'user1@user1.org', 'password': 'password123'})
+		response = self.client.post(self.first_post_url,data={'body': 'this is a comment.'})
+		self.assertRedirects(response, self.first_post_url)
+		self.assertTrue(Comment.objects.exists())
+
+	# def test_non_logged_in_user_cant_comment(self):
+	# 	response = self.client.post(self.first_post_url, data={'body': 'this is a comment.'})
+	# 	self.assertRedirects(response, '{}?next={}'.format(settings.LOGIN_URL, self.first_post_url))
+	# 	self.assertFalse(Comment.objects.exists())
 
 	
