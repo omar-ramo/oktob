@@ -11,7 +11,7 @@ for now, there is two applications:
 
 Try it:
 
-A demo for this app is hosted on Heroku Demo
+A demo for this app is hosted on Heroku [Demo](https://demo-oktob.herokuapp.com/)
 
 you may register a new account , or just use this credentials:
 
